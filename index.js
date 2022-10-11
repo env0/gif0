@@ -1,56 +1,40 @@
-const express = require("express");
-const app = express();
-const port = 3000;
-const bodyParser = require("body-parser");
-const axios = require("axios");
+const { App } = require("@slack/bolt");
+const { searchForGif } = require("./giphy-client");
 
-app.use(bodyParser.urlencoded({ extended: true }));
+// TODO: https://slack.dev/bolt-js/deployments/aws-lambda
 
-app.post("/gif0", async (req, res) => {
-  // TODO: Validate the token and that
-  console.log(req.body);
+const app = new App({
+  signingSecret: "cf8ce22204234354de0bd0949d9665d3",
+  token: "xoxb-1550164649716-4207517095345-nDh4Mnn9vSbTJi9Hvbz4nUpN",
+});
 
-  const { text, response_url } = req.body;
+app.command("/gif0", async ({ ack, say, body, ...props }) => {
+  // console.log("got request", props);
+  await ack({ text: "Getting your gifs ..." });
 
-  res.send({
-    text: `Loading gifs for ${text} ...`,
-  });
+  const gifUrl = await searchForGif(body.text);
 
-  const { data: giphySearchResponse } = await axios.get(
-    "https://api.giphy.com/v1/gifs/search",
-    {
-      params: {
-        api_key: "yf0xX299HlpDo760hrbWL99dBeQiWnPf",
-        q: text,
-        limit: 1,
-      },
-    }
-  );
-
-  try {
-    const secondPost = {
-      blocks: [
-        {
-          type: "image",
-          title: {
-            type: "plain_text",
-            text: "Please enjoy this photo of a " + text,
-          },
-          block_id: "image4",
-          image_url: giphySearchResponse.data[0].images.original.url,
-          alt_text: text,
+  const secondPost = {
+    blocks: [
+      {
+        type: "image",
+        title: {
+          type: "plain_text",
+          text: "Please enjoy this photo of a " + body.text,
         },
-      ],
-      response_type: "ephemeral",
-      replace_original: "true",
-    };
+        block_id: "image4",
+        image_url: gifUrl,
+        alt_text: body.text,
+      },
+    ],
+  };
 
-    await axios.post(response_url, secondPost);
-  } catch (ex) {
-    console.error(ex);
-  }
+  await say(secondPost);
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+(async () => {
+  // Start the app
+  await app.start(process.env.PORT || 3000);
+
+  console.log("⚡️ Bolt app is running!");
+})();
