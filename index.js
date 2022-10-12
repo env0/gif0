@@ -6,6 +6,14 @@ const { searchForGif } = require("./giphy-client");
 const app = new App({
   signingSecret: "cf8ce22204234354de0bd0949d9665d3",
   token: "xoxb-1550164649716-4207517095345-nDh4Mnn9vSbTJi9Hvbz4nUpN",
+  unhandledRequestHandler: async ({ logger, response }) => {
+    logger.info(
+      "Acknowledging this incoming request because 2 seconds already passed..."
+    );
+    // acknowledge it anyway!
+    response.writeHead(200);
+    response.end();
+  },
 });
 
 app.command("/gif0", async ({ ack, say, body, ...props }) => {
@@ -26,10 +34,76 @@ app.command("/gif0", async ({ ack, say, body, ...props }) => {
         image_url: gifUrl,
         alt_text: body.text,
       },
+      {
+        type: "actions",
+        block_id: "actions1",
+        elements: [
+          {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Next",
+            },
+            value: "next",
+            action_id: "next_button",
+          },
+          {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Prev",
+            },
+            value: "prev",
+            action_id: "prev_button",
+          },
+          {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Send",
+            },
+            value: "send",
+            action_id: "send_button",
+          },
+          {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Cancel",
+            },
+            value: "cancel",
+            action_id: "cancel_button",
+          },
+        ],
+      },
     ],
   };
 
   await say(secondPost);
+});
+
+app.action("next_button", async ({ ack, say }) => {
+  // Acknowledge action request
+  await ack();
+  await say("Request approved 👍");
+});
+
+app.action("prev_button", async ({ ack, say }) => {
+  // Acknowledge action request
+  await ack();
+  await say("Request approved 👍");
+});
+
+app.action("send_button", async ({ ack, say }) => {
+  // Acknowledge action request
+  await ack();
+  await say("Request approved 👍");
+});
+
+app.action("cancel_button", async ({ ack, say }) => {
+  // Acknowledge action request
+  await ack();
+  await say("Request approved 👍");
 });
 
 (async () => {
