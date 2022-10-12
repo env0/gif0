@@ -22,6 +22,7 @@ app.command("/gif0", async ({ ack, say, body, ...props }) => {
 
   const gifUrl = await searchForGif(body.text);
 
+  // TODO: all the "says" are public!!
   const secondPost = {
     blocks: [
       {
@@ -44,10 +45,11 @@ app.command("/gif0", async ({ ack, say, body, ...props }) => {
               type: "plain_text",
               text: "Next",
             },
-            value: "next",
+            value: JSON.stringify({ text: body.text, index: 0 }),
             action_id: "next_button",
           },
           {
+            // Prev should be disabled on first gif :/
             type: "button",
             text: {
               type: "plain_text",
@@ -82,8 +84,10 @@ app.command("/gif0", async ({ ack, say, body, ...props }) => {
   await say(secondPost);
 });
 
-app.action("next_button", async ({ ack, say }) => {
+app.action("next_button", async ({ ack, say, body }) => {
   // Acknowledge action request
+  const { text, index } = JSON.parse(body.actions[0].value);
+  console.log(text, index);
   await ack();
   await say("Request approved 👍");
 });

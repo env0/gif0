@@ -15,6 +15,9 @@ const searchForGif = async (text) => {
   return giphySearchResponse.data[0].images.downsized.url;
 };
 
+// const getNextGif;
+// const getPrevGif;
+
 module.exports = {
   searchForGif,
 };
