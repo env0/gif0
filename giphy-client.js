@@ -12,7 +12,7 @@ const searchForGif = async (text) => {
     }
   );
 
-  return giphySearchResponse.data[0].images.original.url;
+  return giphySearchResponse.data[0].images.downsized.url;
 };
 
 module.exports = {
