@@ -1,5 +1,9 @@
 const { App } = require("@slack/bolt");
-const { searchForGif } = require("./giphy-client");
+const { searchForGif } = require("./src/giphy-client");
+const {
+  getImagePost,
+  getPostWithButtons,
+} = require("./src/slack-post-generator");
 
 // TODO: https://slack.dev/bolt-js/deployments/aws-lambda
 
@@ -21,27 +25,18 @@ const getGifPost = async ({ text, index }) => {
   return getPostWithButtons({ text, index, sendUrl, previewUrl });
 };
 
-app.command("/gif0", async ({ ack, respond, body, client }) => {
-  await ack({ text: "Getting your gif ..." });
-  const { text, channel_id, user_id } = body;
+app.command("/gif0", async ({ ack, respond, body }) => {
+  await ack();
+  const { text } = body;
   const firstPost = await getGifPost({ text, index: 0 });
-  await client.chat.postEphemeral({
-    channel: channel_id,
-    user: user_id,
-    ...firstPost,
-  });
+  await respond(firstPost);
 });
 
 app.action("next_button", async ({ ack, respond, body, ...props }) => {
   const { text, index } = JSON.parse(body.actions[0].value);
   await ack();
   const nextPost = await getGifPost({ text, index });
-  // await respond(nextPost);
-  await client.chat.postEphemeral({
-    channel: body.channel_id,
-    user: body.user_id,
-    ...nextPost,
-  });
+  await respond(nextPost);
 });
 
 app.action("prev_button", async ({ ack, respond, body }) => {
@@ -51,80 +46,28 @@ app.action("prev_button", async ({ ack, respond, body }) => {
   await respond(nextPost);
 });
 
-app.action("send_button", async ({ ack, body, say }) => {
-  const { text, sendUrl } = JSON.parse(body.actions[0].value);
+app.action("send_button", async ({ ack, body, say, respond }) => {
+  const { actions, user } = body;
+  const { text, sendUrl } = JSON.parse(actions[0].value);
   await ack();
   const publicPost = getImagePost({ text, url: sendUrl });
-  // TODO: Send as
-  await say({ ...publicPost });
+  console.log(body);
+  await Promise.all([
+    respond({ delete_original: true }), // delete the "only visible to you" post, make room for the public one
+
+    // TODO: Send as user
+    say({
+      ...publicPost,
+      username: user.username,
+      as_user: true,
+    }),
+  ]);
 });
 
-app.action("cancel_button", async ({ ack, say }) => {
+app.action("cancel_button", async ({ ack, respond }) => {
   await ack();
-  await say("Request approved 👍");
+  await respond("Gif search canceled");
 });
-
-const getImagePost = ({ text, url }) => ({
-  text,
-  blocks: [
-    {
-      type: "image",
-      title: { type: "plain_text", text },
-      block_id: "image4",
-      image_url: url,
-      alt_text: text,
-    },
-  ],
-});
-
-const getPostWithButtons = ({ text, index, sendUrl, previewUrl }) => {
-  const post = getImagePost({ text, url: previewUrl });
-  post.blocks.push({
-    type: "actions",
-    block_id: "actions1",
-    elements: [
-      {
-        type: "button",
-        text: {
-          type: "plain_text",
-          text: "Prev",
-        },
-        value: JSON.stringify({ text, index: Math.max(0, index - 1) }),
-        action_id: "prev_button",
-      },
-      {
-        type: "button",
-        text: {
-          type: "plain_text",
-          text: "Next",
-        },
-        value: JSON.stringify({ text, index: index + 1 }),
-        action_id: "next_button",
-      },
-      {
-        type: "button",
-        text: {
-          type: "plain_text",
-          text: "Send",
-        },
-        value: JSON.stringify({ text, sendUrl }),
-        action_id: "send_button",
-        style: "primary",
-      },
-      {
-        type: "button",
-        text: {
-          type: "plain_text",
-          text: "Cancel",
-        },
-        value: "cancel",
-        action_id: "cancel_button",
-        style: "danger",
-      },
-    ],
-  });
-  return post;
-};
 
 const start = async () => {
   try {

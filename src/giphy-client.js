@@ -15,11 +15,14 @@ const searchForGif = async ({ text, index }) => {
 
   const { images } = giphySearchResponse.data[0];
 
-  return { sendUrl: images.original.url, previewUrl: images.downsized.url };
-};
+  // to log all image versions
+  // console.log(Object.keys(images).map((k) => [k, images[k].url]));
 
-// const getNextGif;
-// const getPrevGif;
+  return {
+    sendUrl: images.downsized.url,
+    previewUrl: images.fixed_height_downsampled.url,
+  };
+};
 
 module.exports = {
   searchForGif,
