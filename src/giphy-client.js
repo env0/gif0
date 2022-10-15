@@ -5,6 +5,7 @@ const searchForGif = async ({ text, index }) => {
     "https://api.giphy.com/v1/gifs/search",
     {
       params: {
+        // TODO: use env config
         api_key: "yf0xX299HlpDo760hrbWL99dBeQiWnPf",
         q: text,
         offset: index,
@@ -19,8 +20,8 @@ const searchForGif = async ({ text, index }) => {
   // console.log(Object.keys(images).map((k) => [k, images[k].url]));
 
   return {
-    sendUrl: images.downsized.url,
-    previewUrl: images.fixed_height_downsampled.url,
+    sendUrl: images.downsized.url, // not using original because Slack will not show preview for big images
+    previewUrl: images.fixed_height_downsampled.url, // fixed_height lets the button stay in the same place
   };
 };
 
