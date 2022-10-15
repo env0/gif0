@@ -25,6 +25,17 @@ const getGifPost = async ({ text, index }) => {
   return getPostWithButtons({ text, index, sendUrl, previewUrl });
 };
 
+const getSlackUserDetails = async ({ id, username }, client) => {
+  const {
+    profile: { image_48 },
+  } = await client.users.profile.get({ user: id });
+
+  return {
+    username: username,
+    icon_url: image_48,
+  };
+};
+
 app.command("/gif0", async ({ ack, respond, body }) => {
   await ack();
   const { text } = body;
@@ -46,20 +57,18 @@ app.action("prev_button", async ({ ack, respond, body }) => {
   await respond(nextPost);
 });
 
-app.action("send_button", async ({ ack, body, say, respond }) => {
+app.action("send_button", async ({ ack, body, say, respond, client }) => {
   const { actions, user } = body;
   const { text, sendUrl } = JSON.parse(actions[0].value);
   await ack();
   const publicPost = getImagePost({ text, url: sendUrl });
-  console.log(body);
+  const userDetails = await getSlackUserDetails(user, client);
+
   await Promise.all([
     respond({ delete_original: true }), // delete the "only visible to you" post, make room for the public one
-
-    // TODO: Send as user
     say({
       ...publicPost,
-      username: user.username,
-      as_user: true,
+      ...userDetails,
     }),
   ]);
 });
