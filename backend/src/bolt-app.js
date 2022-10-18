@@ -2,13 +2,13 @@ const { App, AwsLambdaReceiver } = require("@slack/bolt");
 const { searchForGif } = require("./giphy-client");
 const { getImagePost, getPostWithButtons } = require("./slack-post-generator");
 
-const signingSecret = "cf8ce22204234354de0bd0949d9665d3";
+const signingSecret = process.env.SLACK_APP_SIGNING_SECRET;
+const token = process.env.SLACK_APP_TOKEN;
 
 const getApp = (config) => {
   const app = new App({
-    // TODO: These need to come process.env
     signingSecret,
-    token: "xoxb-1550164649716-4207517095345-nDh4Mnn9vSbTJi9Hvbz4nUpN",
+    token,
     unhandledRequestHandler: async ({ logger, response }) => {
       logger.info(
         "Acknowledging this incoming request because 2 seconds already passed..."

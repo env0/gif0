@@ -5,8 +5,7 @@ const searchForGif = async ({ text, index }) => {
     "https://api.giphy.com/v1/gifs/search",
     {
       params: {
-        // TODO: use env config
-        api_key: "yf0xX299HlpDo760hrbWL99dBeQiWnPf",
+        api_key: process.env.GIPHY_API_KEY,
         q: text,
         offset: index,
         limit: 1,
