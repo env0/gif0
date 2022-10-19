@@ -1,0 +1,8 @@
+version: 1
+
+deploy:
+  steps:
+    setupVariables:
+      after:
+        - npm i
+        - npm run build
