@@ -37,7 +37,7 @@ export class DeploymentStack extends cdk.Stack {
     });
 
     new cdk.CfnOutput(this, "TheUrl", {
-      value: fnUrl.url,
+      value: fnUrl.url + "slack/events",
     });
   }
 }
