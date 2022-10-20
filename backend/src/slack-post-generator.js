@@ -21,11 +21,11 @@ const getPostWithButtons = ({ text, index, sendUrl, previewUrl }) => {
         type: "button",
         text: {
           type: "plain_text",
-          text: "Send",
+          text: "Cancel",
         },
-        value: JSON.stringify({ text, sendUrl }),
-        action_id: "send_button",
-        style: "primary",
+        value: "cancel",
+        action_id: "cancel_button",
+        style: "danger",
       },
       {
         type: "button",
@@ -49,11 +49,11 @@ const getPostWithButtons = ({ text, index, sendUrl, previewUrl }) => {
         type: "button",
         text: {
           type: "plain_text",
-          text: "Cancel",
+          text: "Send",
         },
-        value: "cancel",
-        action_id: "cancel_button",
-        style: "danger",
+        value: JSON.stringify({ text, sendUrl }),
+        action_id: "send_button",
+        style: "primary",
       },
     ],
   });
