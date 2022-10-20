@@ -6,4 +6,4 @@ deploy:
       after:
         - npm i
         - npm run bootstrap
-        - npm run deploy --require-approval=never
+        - npm run deploy -- --require-approval=never
