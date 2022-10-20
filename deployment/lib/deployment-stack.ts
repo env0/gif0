@@ -24,7 +24,7 @@ export class DeploymentStack extends cdk.Stack {
       return prev;
     }, {} as Record<string, string>);
 
-    const fn = new lambda.Function(this, "MyFunction", {
+    const fn = new lambda.Function(this, "Gif0HandlerFunction", {
       runtime: lambda.Runtime.NODEJS_16_X,
       handler: "index.handler",
       code: lambda.Code.fromAsset(path.join(__dirname, "../../backend")),
