@@ -1,7 +1,17 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "CloudFormation empty template"
+Description: "CloudFormation Dummy Template"
+
+Conditions:
+  HasNot: !Equals ["true", "false"]
 
 # dummy (null) resource, never created
 Resources:
   NullResource:
     Type: "Custom::NullResource"
+    Condition: HasNot
+
+Outputs:
+  ExportsStackName:
+    Value: !Ref "AWS::StackName"
+    Export:
+      Name: !Sub "ExportsStackName-${AWS::StackName}"
